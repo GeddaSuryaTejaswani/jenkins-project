@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/yourname/jenkins-project.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build('myapp')
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    docker.image('myapp').run()
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            mail to: 'your-email@example.com',
+                 subject: 'Build Successful',
+                 body: 'Good job! Jenkins build passed ✅'
+        }
+        failure {
+            mail to: 'your-email@example.com',
+                 subject: 'Build Failed',
+                 body: 'Oops! Jenkins build failed ❌'
+        }
+    }
+}
