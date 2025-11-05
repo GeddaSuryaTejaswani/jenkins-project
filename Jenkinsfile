@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'https://github.com/your-username/jenkins-project.git'
+        REPO_URL = 'https://github.com/GeddaSuryaTejaswani/jenkins-project.git'
         IMAGE_NAME = 'jenkins-docker-demo'
         EMAIL_RECIPIENT = 'your-email@example.com'
     }
