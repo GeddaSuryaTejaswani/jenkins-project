@@ -28,12 +28,14 @@ pipeline {
             steps {
                 echo "Cleaning up old containers and running a new one..."
                 script {
-                    // Stop and remove old containers
-                    bat 'docker ps -q --filter "ancestor=${IMAGE_NAME}" | xargs -r docker stop || true'
-                    bat 'docker ps -aq --filter "ancestor=${IMAGE_NAME}" | xargs -r docker rm || true'
+                    // 🧩 Windows fix: use for-loop instead of xargs
+                    bat '''
+                    for /f "tokens=*" %%i in ('docker ps -q --filter "ancestor=%IMAGE_NAME%"') do docker stop %%i
+                    for /f "tokens=*" %%i in ('docker ps -aq --filter "ancestor=%IMAGE_NAME%"') do docker rm %%i
+                    '''
 
-                    // Run on a different host port (5000)
-                    docker.image("${IMAGE_NAME}").run('-d -p 5000:8080')
+                    // 🧩 Run the container on port 5000
+                    bat "docker run -d -p 5000:8080 %IMAGE_NAME%"
                 }
             }
         }
@@ -42,7 +44,7 @@ pipeline {
             steps {
                 echo "Testing Flask app endpoint..."
                 script {
-                    bat 'curl -f http://localhost:5000 || exit 1'
+                    bat 'curl -f http://localhost:5000 || exit /b 1'
                 }
             }
         }
@@ -59,9 +61,11 @@ pipeline {
                 <p>Build Number: ${env.BUILD_NUMBER}</p>
                 <p><a href="${env.BUILD_URL}">View build details</a></p>
                 """,
+                mimeType: 'text/html',
                 to: "${EMAIL_RECIPIENT}"
             )
         }
+
         failure {
             echo "Build failed. Sending failure email..."
             emailext(
@@ -72,8 +76,10 @@ pipeline {
                 <p>Build Number: ${env.BUILD_NUMBER}</p>
                 <p>Check logs: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
+                mimeType: 'text/html',
                 to: "${EMAIL_RECIPIENT}"
             )
         }
     }
 }
+
