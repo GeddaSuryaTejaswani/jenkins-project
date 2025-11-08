@@ -26,9 +26,14 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                echo "Running Docker container..."
+                echo "Cleaning up old containers and running a new one..."
                 script {
-                    docker.image("${IMAGE_NAME}").run('-d -p 8080:8080')
+                    // Stop and remove old containers
+                    sh 'docker ps -q --filter "ancestor=${IMAGE_NAME}" | xargs -r docker stop || true'
+                    sh 'docker ps -aq --filter "ancestor=${IMAGE_NAME}" | xargs -r docker rm || true'
+
+                    // Run on a different host port (5000)
+                    docker.image("${IMAGE_NAME}").run('-d -p 5000:8080')
                 }
             }
         }
@@ -37,7 +42,7 @@ pipeline {
             steps {
                 echo "Testing Flask app endpoint..."
                 script {
-                    sh 'curl -f http://localhost:8080 || exit 1'
+                    sh 'curl -f http://localhost:5000 || exit 1'
                 }
             }
         }
