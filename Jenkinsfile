@@ -4,7 +4,7 @@ pipeline {
     environment {
         REPO_URL = 'https://github.com/GeddaSuryaTejaswani/jenkins-project.git'
         IMAGE_NAME = 'jenkins-docker-demo'
-        EMAIL_RECIPIENT = 'your-email@example.com'
+        EMAIL_RECIPIENT = 'geddasuryatejaswani@gmail.com'
     }
 
     stages {
