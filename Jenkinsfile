@@ -29,7 +29,6 @@ pipeline {
             steps {
                 echo "Cleaning up old containers and running a new one..."
                 script {
-                    // 🧹 Stop and remove any old containers
                     bat """
                     for /f "tokens=*" %%i in ('docker ps -q --filter "ancestor=${IMAGE_NAME}"') do docker stop %%i
                     for /f "tokens=*" %%i in ('docker ps -aq --filter "ancestor=${IMAGE_NAME}"') do docker rm %%i
@@ -51,33 +50,21 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build successful. Sending success email..."
             emailext(
-                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                <h3>✅ Build Successful!</h3>
-                <p><b>Project:</b> ${env.JOB_NAME}</p>
-                <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
-                <p><a href="${env.BUILD_URL}">View build details</a></p>
-                """,
-                mimeType: 'text/html',
-                to: "${EMAIL_RECIPIENT}"
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build Successful!",
+                to: "${EMAIL_RECIPIENT}",
+                from: "geddasuryatejaswani@gmail.com"
             )
         }
-
         failure {
-            echo "❌ Build failed. Sending failure email..."
             emailext(
-                subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                <h3>❌ Build Failed!</h3>
-                <p><b>Project:</b> ${env.JOB_NAME}</p>
-                <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
-                <p>Check logs: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                """,
-                mimeType: 'text/html',
-                to: "${EMAIL_RECIPIENT}"
+                subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build Failed!",
+                to: "${EMAIL_RECIPIENT}",
+                from: "geddasuryatejaswani@gmail.com"
             )
         }
     }
 }
+
